@@ -1,3 +1,7 @@
+package dao;
+
+import models.Person;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -57,7 +61,7 @@ public class PersonDAO {
 
     public int addPerson(Person person) throws SQLException {
         if (person == null) {
-            throw new IllegalArgumentException("Person cannot be null");
+            throw new IllegalArgumentException("models.Person cannot be null");
         }
 
         String sql = "INSERT INTO people (first_name, last_name, email, phone_number, residential_area, person_role) "
@@ -92,7 +96,7 @@ public class PersonDAO {
 
     public boolean updatePerson(Person person) throws SQLException {
         if (person == null) {
-            throw new IllegalArgumentException("Person cannot be null");
+            throw new IllegalArgumentException("models.Person cannot be null");
         }
 
         String sql = "UPDATE people SET first_name = ?, last_name = ?, email = ?, phone_number = ?, residential_area = ?, person_role = ? "

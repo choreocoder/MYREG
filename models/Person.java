@@ -1,3 +1,5 @@
+package models;
+
 public class Person {
 
     private int id;
@@ -96,7 +98,7 @@ public class Person {
 
     public void setPersonRole(String personRole) { 
         if (personRole == null || personRole.trim().isEmpty()) {
-            throw new IllegalArgumentException("Person Role cannot be null or empty");
+            throw new IllegalArgumentException("models.Person Role cannot be null or empty");
         }
         this.personRole = personRole;
     }
