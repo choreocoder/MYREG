@@ -8,10 +8,10 @@ public class Visitor extends Person {
     private FollowUpStatus followUpStatus;
 
 
-    public Visitor(String firstName, String lastName, String email, String phone,
+    public Visitor(String firstName, String lastName, String email, String phoneNumber,
                    String residentialArea, LocalDate firstTimeVisitDate, int invitedById, FollowUpStatus followUpStatus) {
 
-        super(firstName, lastName, email, phone, residentialArea, "VISITOR");
+        super(firstName, lastName, email, phoneNumber, residentialArea, "VISITOR");
 
         this.firstTimeVisitDate = firstTimeVisitDate;
         this.invitedById = invitedById;
