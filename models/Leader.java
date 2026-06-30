@@ -6,9 +6,10 @@ public class Leader extends Person {
 
 
     public Leader(int id, String firstName, String lastName, String email,
-                  String phoneNumber, String residentialArea, String personRole) {
-        super(firstName, lastName, email, phoneNumber, residentialArea, personRole);
-        this.leaderTier = LeaderTier.TRAINEE; // Safe default
+                  String phoneNumber, String residentialArea, String personRole,
+                  LeaderTier leaderTier) {
+        super(id, firstName, lastName, email, phoneNumber, residentialArea, personRole);
+        this.leaderTier = leaderTier != null ? leaderTier : LeaderTier.TRAINEE; // Safe default
     }
 
 
@@ -19,5 +20,14 @@ public class Leader extends Person {
 
     public void setLeaderTier(LeaderTier leaderTier) {
         this.leaderTier = leaderTier;
+    }
+
+    @Override
+    public String toString() {
+        return "Leader{" +
+                ", id=" + getId() +
+                ", name='" + getFirstName() + " " + getLastName() + '\'' +
+                ", tier=" + leaderTier +
+                '}';
     }
 }

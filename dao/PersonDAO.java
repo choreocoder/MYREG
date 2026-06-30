@@ -1,6 +1,10 @@
 package dao;
 
 import models.Person;
+import models.Visitor;
+import models.Leader;
+import models.FollowUpStatus;
+import models.LeaderTier;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,6 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,17 +61,18 @@ public class PersonDAO {
                 people.add(mapRowToPerson(resultSet));
             }
         }
-
         return people;
     }
 
     public int addPerson(Person person) throws SQLException {
         if (person == null) {
-            throw new IllegalArgumentException("models.Person cannot be null");
+            throw new IllegalArgumentException("Person cannot be null");
         }
 
-        String sql = "INSERT INTO people (first_name, last_name, email, phone_number, residential_area, person_role) "
-                   + "VALUES (?, ?, ?, ?, ?, ?)";
+        // Expanded SQL statement to handle all specialized role tracking columns
+        String sql = "INSERT INTO people (first_name, last_name, email, phone_number, residential_area, person_role, "
+                + "first_time_visit_date, invited_by_id, follow_up_status, leader_tier) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -76,6 +83,41 @@ public class PersonDAO {
             statement.setString(4, person.getPhoneNumber());
             statement.setString(5, person.getResidentialArea());
             statement.setString(6, person.getPersonRole());
+
+            // Polymorphic handling based on what class type is passed into the DAO
+            if (person instanceof Visitor) {
+                Visitor visitor = (Visitor) person;
+
+                if (visitor.getFirstTimeVisitDate() != null) {
+                    statement.setDate(7, java.sql.Date.valueOf(visitor.getFirstTimeVisitDate()));
+                } else {
+                    statement.setNull(7, Types.DATE);
+                }
+
+                if (visitor.getInvitedById() > 0) {
+                    statement.setInt(8, visitor.getInvitedById());
+                } else {
+                    statement.setNull(8, Types.INTEGER);
+                }
+
+                statement.setString(9, visitor.getFollowUpStatus() != null ? visitor.getFollowUpStatus().name() : null);
+                statement.setNull(10, Types.VARCHAR); // No leader tier for a visitor
+
+            } else if (person instanceof Leader) {
+                Leader leader = (Leader) person;
+
+                statement.setNull(7, Types.DATE);
+                statement.setNull(8, Types.INTEGER);
+                statement.setNull(9, Types.VARCHAR);
+                statement.setString(10, leader.getLeaderTier() != null ? leader.getLeaderTier().name() : null);
+
+            } else {
+                // If it's a plain base Person object, set all specialized columns to null
+                statement.setNull(7, Types.DATE);
+                statement.setNull(8, Types.INTEGER);
+                statement.setNull(9, Types.VARCHAR);
+                statement.setNull(10, Types.VARCHAR);
+            }
 
             int rowsAffected = statement.executeUpdate();
             if (rowsAffected == 0) {
@@ -96,11 +138,12 @@ public class PersonDAO {
 
     public boolean updatePerson(Person person) throws SQLException {
         if (person == null) {
-            throw new IllegalArgumentException("models.Person cannot be null");
+            throw new IllegalArgumentException("Person cannot be null");
         }
 
-        String sql = "UPDATE people SET first_name = ?, last_name = ?, email = ?, phone_number = ?, residential_area = ?, person_role = ? "
-                   + "WHERE id = ?";
+        String sql = "UPDATE people SET first_name = ?, last_name = ?, email = ?, phone_number = ?, residential_area = ?, person_role = ?, "
+                + "first_time_visit_date = ?, invited_by_id = ?, follow_up_status = ?, leader_tier = ? "
+                + "WHERE id = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -111,7 +154,27 @@ public class PersonDAO {
             statement.setString(4, person.getPhoneNumber());
             statement.setString(5, person.getResidentialArea());
             statement.setString(6, person.getPersonRole());
-            statement.setInt(7, person.getId());
+
+            if (person instanceof Visitor) {
+                Visitor visitor = (Visitor) person;
+                statement.setDate(7, visitor.getFirstTimeVisitDate() != null ? java.sql.Date.valueOf(visitor.getFirstTimeVisitDate()) : null);
+                statement.setInt(8, visitor.getInvitedById());
+                statement.setString(9, visitor.getFollowUpStatus() != null ? visitor.getFollowUpStatus().name() : null);
+                statement.setNull(10, Types.VARCHAR);
+            } else if (person instanceof Leader) {
+                Leader leader = (Leader) person;
+                statement.setNull(7, Types.DATE);
+                statement.setNull(8, Types.INTEGER);
+                statement.setNull(9, Types.VARCHAR);
+                statement.setString(10, leader.getLeaderTier() != null ? leader.getLeaderTier().name() : null);
+            } else {
+                statement.setNull(7, Types.DATE);
+                statement.setNull(8, Types.INTEGER);
+                statement.setNull(9, Types.VARCHAR);
+                statement.setNull(10, Types.VARCHAR);
+            }
+
+            statement.setInt(11, person.getId());
 
             return statement.executeUpdate() > 0;
         }
@@ -128,15 +191,34 @@ public class PersonDAO {
         }
     }
 
+    // Explicitly reconstructs specific subclasses based on the role column value
     private Person mapRowToPerson(ResultSet resultSet) throws SQLException {
-        return new Person(
-                resultSet.getInt("id"),
-                resultSet.getString("first_name"),
-                resultSet.getString("last_name"),
-                resultSet.getString("email"),
-                resultSet.getString("phone_number"),
-                resultSet.getString("residential_area"),
-                resultSet.getString("person_role")
-        );
+        String role = resultSet.getString("person_role");
+        int id = resultSet.getInt("id");
+        String firstName = resultSet.getString("first_name");
+        String lastName = resultSet.getString("last_name");
+        String email = resultSet.getString("email");
+        String phoneNumber = resultSet.getString("phone_number");
+        String residentialArea = resultSet.getString("residential_area");
+
+        if ("VISITOR".equalsIgnoreCase(role)) {
+            java.sql.Date sqlDate = resultSet.getDate("first_time_visit_date");
+            LocalDate visitDate = (sqlDate != null) ? sqlDate.toLocalDate() : null;
+            int invitedBy = resultSet.getInt("invited_by_id");
+
+            String statusStr = resultSet.getString("follow_up_status");
+            FollowUpStatus status = (statusStr != null) ? FollowUpStatus.valueOf(statusStr) : FollowUpStatus.PENDING;
+
+            return new Visitor(id, firstName, lastName, email, phoneNumber, residentialArea, role, visitDate, invitedBy, status);
+
+        } else if ("LEADER".equalsIgnoreCase(role)) {
+            String tierStr = resultSet.getString("leader_tier");
+            LeaderTier tier = (tierStr != null) ? LeaderTier.valueOf(tierStr) : LeaderTier.TRAINEE;
+
+            return new Leader(id, firstName, lastName, email, phoneNumber, residentialArea, role, tier);
+        }
+
+        // Default structural fallback to a base Person object
+        return new Person(id, firstName, lastName, email, phoneNumber, residentialArea, role);
     }
 }

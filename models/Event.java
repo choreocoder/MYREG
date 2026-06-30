@@ -45,4 +45,15 @@ public class Event {
     public void setSpecialEventDetails(String specialEventDetails) {
         this.specialEventDetails = specialEventDetails;
     }
+
+    @Override
+    public String toString() {
+        String details = (eventType == EventType.SPECIAL_SERVICE) ? " (" + specialEventDetails + ")" : "";
+        return "Event{" +
+                "id=" + eventId +
+                ", type=" + eventType + details +
+                ", dateTime=" + eventDate +
+                ", groupId=" + groupId +
+                '}';
+    }
 }

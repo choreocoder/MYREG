@@ -48,4 +48,14 @@ public class DiscipleshipGroup {
     public void setGroupType(GroupType groupType) {
         this.groupType = groupType;
     }
+
+    @Override
+    public String toString() {
+        return "DiscipleshipGroup{" +
+                "id=" + groupId +
+                ", name='" + groupName + '\'' +
+                ", area='" + residentialArea + '\'' +
+                ", type=" + groupType +
+                '}';
+    }
 }
