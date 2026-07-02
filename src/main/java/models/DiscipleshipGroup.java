@@ -1,5 +1,7 @@
 package models;
 
+import models.GroupType;
+
 public class DiscipleshipGroup {
     private int groupId;
     private String groupName;
