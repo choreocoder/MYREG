@@ -1,5 +1,7 @@
 package models;
 
+import models.*;
+
 public class Leader extends Person {
     private LeaderTier leaderTier;
 
