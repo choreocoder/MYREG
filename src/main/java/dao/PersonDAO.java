@@ -219,6 +219,6 @@ public class PersonDAO {
         }
 
         // Default structural fallback to a base Person object
-        return new Person(id, firstName, lastName, email, phoneNumber, residentialArea, role);
+        return new Person(id, firstName, lastName, email, phoneNumber, residentialArea, role) {};
     }
 }

@@ -13,11 +13,11 @@ import java.util.List;
 @RequestMapping("/api/groups") //Changed from /api/people to avoid path collisions
 public class DiscipleshipGroupController {
 
-    // Renamed the variable to mockGroupDatabase to accurately match the context
+
     private static final List<DiscipleshipGroup> mockGroupDatabase = new ArrayList<>();
 
     static {
-        // These match your exact constructor signature beautifully
+
         mockGroupDatabase.add(new DiscipleshipGroup(1, "YA_FORLYF", "Athlone", 1));
         mockGroupDatabase.add(new DiscipleshipGroup(2, "Otlile's Cell", "Rondebosch", 2));
     }
