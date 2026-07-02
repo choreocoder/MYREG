@@ -1,17 +1,13 @@
 package models;
 
-import models.*;
-
 public class Leader extends Person {
     private LeaderTier leaderTier;
-
-
 
     public Leader(int id, String firstName, String lastName, String email,
                   String phoneNumber, String residentialArea, String personRole,
                   LeaderTier leaderTier) {
         super(id, firstName, lastName, email, phoneNumber, residentialArea, personRole);
-        this.leaderTier = leaderTier != null ? leaderTier : LeaderTier.TRAINEE; // Safe default
+        this.leaderTier = leaderTier != null ? leaderTier : LeaderTier.TRAINEE;
     }
 
 
@@ -27,8 +23,8 @@ public class Leader extends Person {
     @Override
     public String toString() {
         return "Leader{" +
-                ", id=" + getId() +
-                ", name='" + getFirstName() + " " + getLastName() + '\'' +
+                "id=" + getId() +
+                ", name='" + getFullName() + '\'' +
                 ", tier=" + leaderTier +
                 '}';
     }

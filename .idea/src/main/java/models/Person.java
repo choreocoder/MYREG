@@ -1,6 +1,6 @@
 package models;
 
-public class Person {
+public abstract class Person {
 
     private int id;
     private String firstName;
@@ -10,8 +10,8 @@ public class Person {
     private String residentialArea;
     private String personRole;
 
-    public Person(int id, String firstName, String lastName, String email,
-                  String phoneNumber, String residentialArea, String personRole) {
+    protected Person(int id, String firstName, String lastName, String email,
+                     String phoneNumber, String residentialArea, String personRole) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -21,8 +21,8 @@ public class Person {
         this.personRole = personRole;
     }
 
-    public Person(String firstName, String lastName, String email,
-                  String phoneNumber, String residentialArea, String personRole) {
+    protected Person(String firstName, String lastName, String email,
+                     String phoneNumber, String residentialArea, String personRole) {
         this(0, firstName, lastName, email, phoneNumber, residentialArea, personRole);
     }
 
@@ -96,10 +96,14 @@ public class Person {
         return personRole;
     }
 
-    public void setPersonRole(String personRole) { 
+    public void setPersonRole(String personRole) {
         if (personRole == null || personRole.trim().isEmpty()) {
             throw new IllegalArgumentException("models.Person Role cannot be null or empty");
         }
         this.personRole = personRole;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 }

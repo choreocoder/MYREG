@@ -16,7 +16,7 @@ public class Visitor extends Person {
 
         this.firstTimeVisitDate = firstTimeVisitDate;
         this.invitedById = invitedById;
-        this.followUpStatus = followUpStatus;
+        this.followUpStatus = followUpStatus != null ? followUpStatus : FollowUpStatus.PENDING;
     }
 
     public LocalDate getFirstTimeVisitDate() {
@@ -46,8 +46,8 @@ public class Visitor extends Person {
     @Override
     public String toString() {
         return "Visitor{" +
-                "id=" + getId() + // Fixed: Changed getPersonId() to getId()
-                ", name='" + getFirstName() + " " + getLastName() + '\'' +
+                "id=" + getId() +
+                ", name='" + getFullName() + '\'' +
                 ", status=" + followUpStatus +
                 ", visited=" + firstTimeVisitDate +
                 '}';
